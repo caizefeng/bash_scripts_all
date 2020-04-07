@@ -1,0 +1,5 @@
+#!/bin/bash
+module load Intel_compiler/16.0.4
+module load MPI/Intel/IMPI/5.1.3.210
+module load MPI/Intel/IMPI/5.1.3.210
+yhrun -p TH_SHORT2 -N3 -n84 /THL7/home/xuben_th/WORK/caizefeng/spilady1.0.1/example1/spilady1.0.1_1/spilady

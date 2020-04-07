@@ -1,0 +1,20 @@
+#!/bin/bash
+## Job name:
+#SBATCH --job-name=vasp		## relax can be changed to any name 
+## Project:
+#SBATCH --account=materialsim
+## Wall clock limit:
+##SBATCH --time=hh:mm:ss
+## Memory requirment for the nodes (MB):
+##SBATCH --mem-per-cpu=2560
+## Number of nodes:
+#SBATCH --nodes=1		## number of nodes will be used, from 1 - 8
+## Specify all cores on each node:
+#SBATCH --ntasks=16		## 8  
+##SBATCH --ntasks-per-node=16
+##SBATch --cores-per-socket=8	## 
+
+## Do some work:
+ulimit -s unlimited
+srun /opt/soft/vasp/5.3.2/vasp
+#srun sh run_a0.sh

@@ -1,0 +1,4 @@
+Some scripts here have questions of syntax or suitibility more or less and can not be executed directly. 
+After some mannual modification that will be ok.   
+
+1. sed -i '[arg]'. use .../'$i'/... not .../$i/... to replace a string to the value of i not the string "$i". 
