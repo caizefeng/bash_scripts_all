@@ -1,0 +1,39 @@
+#!/bin/bash
+## Job name:
+#SBATCH --job-name=vasp		## relax can be changed to any name 
+## Project:
+#SBATCH --account=materialsim
+## Wall clock limit:
+##SBATCH --time=hh:mm:ss
+## Memory requirment for the nodes (MB):
+##SBATCH --mem-per-cpu=2560
+## Number of nodes:
+#SBATCH --nodes=1		## number of nodes will be used, from 1 - 8
+## Specify all cores on each node:
+#SBATCH --ntasks=16		## 8  
+##SBATCH --ntasks-per-node=16
+##SBATch --cores-per-socket=8	## 
+
+## Do some work:
+ulimit -s unlimited
+
+rm POSCAR -f
+
+for i in POSCAR_ALL/* 
+do
+    cp $i POSCAR
+    fix_layer=4
+    (echo 402; echo 1; echo 0.3; echo ${fix_layer}) | vaspkit 
+    mv POSCAR_FIX POSCAR
+    srun /opt/soft/vasp/5.3.2/vasp
+    E_static=`grep '  without' OUTCAR | head -n 1 | awk '{print $7}'`
+    E_relax=`grep '  without' OUTCAR | tail -n 1 | awk '{print $7}'` 
+    
+    E_bulk=`echo "-14.91130146/4*12" | bc -l`
+    E_surface_0=`echo "($E_static - $E_bulk)/2 + ($E_relax - $E_static)" | bc -l`
+    length_a=`head -3 POSCAR | tail -1 | awk '{print $1}'`
+    length_b=`head -4 POSCAR | tail -1 | awk '{print $2}'`
+    E_surface=`echo "$E_surface_0 / ($length_a * $length_b)" | bc -l`
+    echo -e $i '\t' $E_surface  >> vacuum.data
+done
+

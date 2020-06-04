@@ -10,4 +10,4 @@
 tranfered_file=$1
 target=$2
 
-scp -r $1 lzhpc@166.111.38.71:$2
+scp -r $1 lzhpc@166.111.38.90:$2

@@ -1,0 +1,58 @@
+#!/bin/bash
+## Job name:
+#SBATCH --job-name=vasp		## relax can be changed to any name 
+## Project:
+#SBATCH --account=materialsim
+## Wall clock limit:
+##SBATCH --time=hh:mm:ss
+## Memory requirment for the nodes (MB):
+##SBATCH --mem-per-cpu=2560
+## Number of nodes:
+#SBATCH --nodes=1		## number of nodes will be used, from 1 - 8
+## Specify all cores on each node:
+#SBATCH --ntasks=16		## 8  
+##SBATCH --ntasks-per-node=16
+##SBATch --cores-per-socket=8	## 
+
+## Do some work:
+ulimit -s unlimited
+
+rm encut.data -f
+
+for i in {30..80}0 
+do
+    cat >INCAR <<!
+Global Parameters
+ISTART =  0            (Read existing wavefunction; if there)
+# ISPIN =  2           (Spin polarised DFT)
+# ICHARG =  11         (Non-self-consistent: GGA/LDA band structures)
+LREAL  = .FALSE.       (Projection operators: automatic)
+ENCUT  =  $i        (Cut-off energy for plane wave basis set, in eV)
+PREC   =  Normal       (Precision level)
+LWAVE  = .FALSE.        (Write WAVECAR or not)
+LCHARG = .TRUE.        (Write CHGCAR or not)
+ADDGRID= .TRUE.        (Increase grid; helps GGA convergence)
+# LVTOT  = .TRUE.      (Write total electrostatic potential into LOCPOT or not)
+# LVHAR  = .TRUE.      (Write ionic + Hartree electrostatic potential into LOCPOT or not)
+# NELECT =             (No. of electrons: charged cells; be careful)
+# LPLANE = .TRUE.      (Real space distribution; supercells)
+NPAR   = 4           (Max is no. nodes; don't set for hybrids)
+# NWRITE = 2           (Medium-level output)
+# KPAR   = 2           (Divides k-grid into separate groups)
+# NGX    = 500         (FFT grid mesh density for nice charge/potential plots)
+# NGY    = 500         (FFT grid mesh density for nice charge/potential plots)
+# NGZ    = 500         (FFT grid mesh density for nice charge/potential plots)
+    
+Static Calculation
+ISMEAR =  1            (gaussian smearing method)
+SIGMA  =  0.1         (please check the width of the smearing)
+#LORBIT =  11           (PAW radii for projected DOS)
+#NEDOS  =  2001         (DOSCAR points)
+NELM   =  60           (Max electronic SCF steps)
+EDIFF  =  1E-08        (SCF energy convergence; in eV)
+!
+    srun /opt/soft/vasp/5.3.2/vasp
+    E=`grep '  without' OUTCAR | tail -n 1 | awk '{print $7}'` 
+    echo -e $i '\t' $E  >> encut.data
+done
+

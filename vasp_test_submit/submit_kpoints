@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Job name:
-#SBATCH --job-name=lammps	## relax can be changed to any name 
+#SBATCH --job-name=vasp		## relax can be changed to any name 
 ## Project:
 #SBATCH --account=materialsim
 ## Wall clock limit:
@@ -16,7 +16,20 @@
 
 ## Do some work:
 ulimit -s unlimited
-input_file=`find . -type f -name 'in.*'`
-srun /opt/soft/lammps-5Jun19/src/lmp_mpi -in $input_file
-#srun /opt/soft/lammps-22Aug18/src/lmp_mpi -in $input_file
-#srun /home/caizefeng/soft/lammps-7Aug19/build/lmp -in $input_file
+
+rm kpoints.data -f
+
+for i in {1..27} 
+do
+    cat >KPOINTS <<!
+KPT-Resolved Value to Generate K-Mesh: 0.030
+0
+Gamma
+$i   $i   $i
+0.0  0.0  0.0
+!
+    srun /opt/soft/vasp/5.3.2/vasp
+    E=`grep '  without' OUTCAR | tail -n 1 | awk '{print $7}'` 
+    echo -e $i '\t' $E  >> kpoints.data
+done
+

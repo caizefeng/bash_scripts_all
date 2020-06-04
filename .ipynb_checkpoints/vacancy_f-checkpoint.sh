@@ -14,5 +14,3 @@ perfect_energy=`grep "Energy initial, next-to-last, final" -A 1 $slurm_name | he
 #echo $defect_energy
 vacancy_energy=`echo "scale=4; $defect_energy - ($num_atom - 1) / $num_atom * $perfect_energy" | bc -l`
 echo vacancy formation energy: $vacancy_energy eV
-
-grepp
